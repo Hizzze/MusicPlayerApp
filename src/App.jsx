@@ -2,6 +2,7 @@ import { AllSongs } from './components/Allsongs';
 import { MusicPlayer } from './components/MusicPlayer';
 import { MusicProvider } from './components/contexts/MusicContext';
 import { Playlists } from './components/Playlists';
+import { Navbar } from './components/Navbar';
 import { BrowserRouter, Routes, Route } from 'react-router';
 
 function App() {
@@ -9,7 +10,7 @@ function App() {
     <BrowserRouter>
       <MusicProvider>
         <div className="app">
-          {/* <Navbar />*/}
+          <Navbar />
           <main className="app-main">
             <div className="player-section">
               <MusicPlayer />
