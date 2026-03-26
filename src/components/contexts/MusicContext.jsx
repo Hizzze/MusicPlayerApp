@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 
 export const MusicContext = createContext();
 
@@ -68,6 +68,24 @@ export const MusicProvider = ({ children }) => {
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
+  const [playlists, setPlaylists] = useState([]);
+
+  useEffect(() => {
+    const savedPlaylists = localStorage.getItem('musicPlayerPlaylists');
+    if (savedPlaylists) {
+      const playlists = JSON.parse(savedPlaylists);
+
+      setPlaylists(playlists);
+    } else {
+      localStorage.removeItem('musicPlayerPlaylists');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (playlists.length > 0) {
+      localStorage.setItem('musicPlayerPlaylists', JSON.stringify(playlists));
+    }
+  }, [playlists]);
 
   const handlePlaySong = (song, index) => {
     setCurrentTrack(song);
@@ -82,6 +100,32 @@ export const MusicProvider = ({ children }) => {
       return nextIndex;
     });
     setIsPlaying(false);
+  };
+
+  const createPlaylist = (name) => {
+    const newPlaylist = {
+      id: Date.now(),
+      name,
+      songs: [],
+    };
+
+    setPlaylists((prev) => [...prev, newPlaylist]);
+  };
+
+  const addSongToPlaylist = (playlistId, song) => {
+    setPlaylists((prev) =>
+      prev.map((playlist) => {
+        if (playlist.id === playlistId) {
+          return { ...playlist, songs: [...playlist.songs, song] };
+        } else {
+          return playlist;
+        }
+      }),
+    );
+  };
+
+  const deletePlaylist = (playlistId) => {
+    setPlaylists((prev) => prev.filter((playlist) => playlist.id !== playlistId));
   };
 
   const play = () => setIsPlaying(true);
@@ -124,6 +168,11 @@ export const MusicProvider = ({ children }) => {
         pause,
         volume,
         setVolume,
+        createPlaylist,
+        playlists,
+        addSongToPlaylist,
+        setCurrentTrack,
+        deletePlaylist,
       }}>
       {children}
     </MusicContext.Provider>
